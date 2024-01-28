@@ -1,0 +1,141 @@
+####################
+# Interface Target
+####################
+# Allows selection of which topics are sent over CAN bus
+# A list of arbitrary lowercase c identifiers to refer to targets while starting the bridge
+targets:
+ - talos_can_int  # Talos internal CAN bus
+ - talos_can_ext  # Talos external CAN bus
+ - puddles_eth    # Puddles Coprocessor Ethernet
+
+####################
+# Topic List
+####################
+# Example:
+# example_topic:                      # The ROS topic. This can be an absolute or relative topic name
+#   type: example_msg/msg/MyMessage   # The full ROS message name
+#   qos: system_default               # Must be either system_default or sensor_data
+#   publishers:                       # List of targets that this topic publishes on
+#     - talos_can_int                 #    If the fw_bridge is ran as talos_can_int, this topic will be a publisher
+#   fw_subscriber: true               # List of targets that this topic is subscribed on
+#     - talos_can_ext                 #    If the fw_bridge is ran as talos_can_ext, this topic will be a subscriber
+topics:
+  state/firmware:
+    type: riptide_msgs2/msg/FirmwareStatus
+    qos: sensor_data
+    publishers:
+     - talos_can_int
+     - talos_can_ext
+     - puddles_eth
+  state/dshot:
+    type: riptide_msgs2/msg/DshotPartialTelemetry
+    qos: sensor_data
+    subscribers:
+     - talos_can_int
+     - puddles_eth
+  state/kill:
+    type: "std_msgs/msg/Bool"
+    qos: sensor_data
+    publishers:
+     - talos_can_int
+     - puddles_eth
+    subscribers:
+     - talos_can_int
+     - talos_can_ext
+     - puddles_eth
+  state/aux:
+    type: "std_msgs/msg/Bool"
+    qos: sensor_data
+    publishers:
+     - talos_can_int
+     - puddles_eth
+  command/electrical:
+    type: riptide_msgs2/msg/ElectricalCommand
+    qos: system_default
+    subscribers:
+     - talos_can_int
+     - puddles_eth
+  odometry/filtered:
+    type: nav_msgs/msg/Odometry
+    qos: system_default
+    subscribers:
+     - talos_can_int
+  /diagnostics:
+    type: diagnostic_msgs/msg/DiagnosticStatus
+    qos: system_default
+    subscribers:
+     - talos_can_int
+     - talos_can_ext
+  challenging_msg:
+    type: my_fw_msg_test/msg/ChallengingTest
+    qos: system_default
+    subscribers:
+     - talos_can_int
+     - talos_can_ext
+    publishers:
+     - talos_can_int
+     - talos_can_ext
+  empty_msg:
+    type: std_msgs/msg/Empty
+    qos: system_default
+    subscribers:
+     - talos_can_int
+
+####################
+# Parameters
+####################
+parameters:
+  test_bool: PARAMETER_BOOL
+  test_int: PARAMETER_INTEGER
+  another_test_int: PARAMETER_INTEGER
+  test_double: PARAMETER_DOUBLE
+  test_string: PARAMETER_STRING
+  # test_byte_arr: PARAMETER_BYTE_ARRAY
+  test_bool_arr: PARAMETER_BOOL_ARRAY
+  test_int_arr: PARAMETER_INTEGER_ARRAY
+  test_double_arr: PARAMETER_DOUBLE_ARRAY
+  test_str_arr: PARAMETER_STRING_ARRAY
+
+####################
+# Constant->Enum Mapping
+####################
+# Each message with constants can be declared here
+# This allows ROS message constants to be mapped to enums in protobuf, as ROS messages cannot notate which field
+# a given constant belongs to.
+# Note that assigning a constant to an enum will RESTRICT that field to only taking on values declared by constants
+# Because protobuf does not support constants, this means that some constants might not be able to be copied into
+# the protobuf file. If this is the case, setting the constant to an empty string will ignore those constants.
+
+# Additionally, only 32-bit integer constants are supported. If any constant is out of the range of a 32-bit int, or
+# is a string, it will be automatically ignored by the tool.
+
+# Each ROS message is declared in this constant_mapping list
+# Each message will have a subkey for a constant name. This key supports all unix style filename pattern matching
+# (*, ?, [seq], and [!seq]). The value for this key is the field to assign this constant to. Setting to an empty
+# string will ignore the field.
+
+# Example:
+# example_msg/msg/MyMessageWithConstants:
+#   MY_CONSTANT_1: field_1
+#   MY_CONSTANT_2: field_1
+#   "FIELD_2_CONST_*": field_2  # Match all constants starting with FIELD_2_CONST_
+#   FIELD_3_DEFAULT_VALUE: ""   # Ignore FIELD_3_DEFAULT_VALUE since we don't want to restrict field_3 to just this value
+#   "MY_CONSTANT_*": field_4    # The first matched entry determines the destination, so wildcards can be used to catch other values
+constant_mapping:
+  riptide_msgs2/msg/ElectricalCommand:
+    "*": command
+  example_msg/msg/MyMessageWithConstants:
+    MY_CONSTANT_1: field_1
+    MY_CONSTANT_2: field_1
+    "FIELD_2_CONST_*": field_2  # Match all constants starting with FIELD_2_CONST_
+    FIELD_3_DEFAULT_VALUE: ""   # Ignore FIELD_3_DEFAULT_VALUE since we don't want to restrict field_3 to just this value
+    "MY_CONSTANT_*": field_4    # The first matched entry determines the destination, so wildcards can be used to catch other values
+  diagnostic_msgs/msg/DiagnosticStatus:
+    OK: level
+    WARN: level
+    ERROR: level
+    STALE: level
+  my_fw_msg_test/msg/ChallengingTest:
+    DATA_A*: test_bounded_enum_array
+    DATA_B*: test_fixed_enum_array
+    DATA_C*: test_unbounded_enum_array

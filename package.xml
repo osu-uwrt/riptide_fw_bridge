@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<?xml-model href="http://download.ros.org/schema/package_format3.xsd" schematypens="http://www.w3.org/2001/XMLSchema"?>
+<package format="3">
+  <name>riptide_fw_bridge</name>
+  <version>0.0.1</version>
+  <description>Firmware Bridge between ROS and the Electronics System.</description>
+  <maintainer email="osu.uwrt@gmail.com">OSU UWRT</maintainer>
+  <license>BSD</license>
+
+  <author email="pafford.9@osu.edu">Robert Pafford</author>
+
+  <buildtool_depend>ament_cmake</buildtool_depend>
+
+  <depend>rclcpp</depend>
+  <depend>protobuf-dev</depend>
+
+  <!--All all required messages used by the configuration yaml-->
+  <depend>riptide_msgs2</depend>
+  <depend>std_msgs</depend>
+  <depend>nav_msgs</depend>
+  <depend>diagnostic_msgs</depend>
+  <depend>my_fw_msg_test</depend>
+
+  <test_depend>ament_lint_auto</test_depend>
+  <test_depend>ament_lint_common</test_depend>
+
+  <export>
+    <build_type>ament_cmake</build_type>
+  </export>
+</package>
